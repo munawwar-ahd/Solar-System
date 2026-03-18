@@ -482,11 +482,16 @@ window.addEventListener('mousemove',e=>{
 
   if(hits.length>0&&showLabels){
     const obj=hits[0].object;
-    const isSun=(obj===sunMesh||obj.parent===sunMesh);
+
+    // Walk up the hierarchy to find the object with userData
+    let node=obj;
     let label=null;
-    if(isSun) label='THE SUN';
-    else if(obj.userData.moonName) label=obj.userData.moonName;
-    else if(obj.userData.planet) label=obj.userData.planet.name;
+    while(node){
+      if(node===sunMesh||(node.parent&&node.parent===sunMesh)){label='THE SUN';break;}
+      if(node.userData&&node.userData.planet){label=node.userData.planet.name;break;}
+      if(node.userData&&node.userData.moonName){label=node.userData.moonName;break;}
+      node=node.parent;
+    }
 
     if(label){
       tooltip.textContent=label;
@@ -504,7 +509,6 @@ window.addEventListener('mousemove',e=>{
 });
 
 window.addEventListener('click',e=>{
-  // Ignore drags — only fire on clean clicks
   const dx=e.clientX-mouseDownPos.x, dy=e.clientY-mouseDownPos.y;
   if(Math.sqrt(dx*dx+dy*dy)>5) return;
   if(!hoveredMesh) return;
@@ -512,18 +516,16 @@ window.addEventListener('click',e=>{
   raycaster.setFromCamera(mouse2d,camera);
   const hits=raycaster.intersectObjects([...planetMeshes,...(showMoons?allMoonMeshes:[])],true);
   if(!hits.length) return;
-  const obj=hits[0].object;
 
-  // ── Planet click ──────────────────────────────────
-  if(obj.userData.planet!==undefined&&obj.userData.idx!==undefined){
-    focusPlanet(planets[obj.userData.idx]);
-    return;
-  }
-
-  // ── Moon click ────────────────────────────────────
-  if(obj.userData.moonName){
-    focusMoon(obj);
-    return;
+  let node=hits[0].object;
+  while(node){
+    if(node.userData&&node.userData.planet!==undefined&&node.userData.idx!==undefined){
+      focusPlanet(planets[node.userData.idx]); return;
+    }
+    if(node.userData&&node.userData.moonName){
+      focusMoon(node); return;
+    }
+    node=node.parent;
   }
 });
 
