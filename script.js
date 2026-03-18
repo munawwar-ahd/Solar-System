@@ -391,11 +391,13 @@ planets.forEach(planet=>{
     mesh.name=mDef.name;
     mesh.userData.moonName=mDef.name;
     mesh.userData.parentPlanet=pName;
+    mesh.visible=false;
     scene.add(mesh);
     allMoonMeshes.push(mesh);
 
     // Orbit ring
     const orb=buildCirclePath(mDef.dist,0x1a3055,0.18);
+    orb.visible=false;
     scene.add(orb);
     moonOrbitLines.push(orb);
 
@@ -428,6 +430,7 @@ planets.forEach(planet=>{
       mesh.userData.parentPlanet = pName;
       mesh.userData.isSmallMoon = true;
       mesh.userData.moonDist = dist.toFixed(1);
+      mesh.visible=false;
       scene.add(mesh);
       allMoonMeshes.push(mesh);
       sys.small.push({mesh,angle:Math.random()*Math.PI*2,speed:BASE_MOON_SPEED/period,dist,inclRad,retrograde,phaseOff:Math.random()*Math.PI*2});
@@ -459,7 +462,7 @@ controls.enableDamping=true; controls.dampingFactor=0.055;
 controls.minDistance=0.5; controls.maxDistance=700;
 controls.zoomSpeed=0.9; controls.rotateSpeed=0.6; controls.panSpeed=0.8;
 
-let isPaused=false, timeScale=1.0, showOrbits=true, showLabels=true, showMoons=true;
+let isPaused=false, timeScale=1.0, showOrbits=true, showLabels=true, showMoons=false;
 let selectedPlanet=null, isFocused=false;
 const clock=new THREE.Clock();
 // BASE_SPEED tuned so Earth completes one orbit in ~18s at 1× (timeScale=1)
