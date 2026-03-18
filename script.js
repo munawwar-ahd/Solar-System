@@ -156,7 +156,7 @@ function ringTexture() {
 
 const scene    = new THREE.Scene();
 const camera   = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.01, 8000);
-camera.position.set(0, 65, 148);
+camera.position.set(0, 80, 175);
 
 const canvas   = document.getElementById('canvas');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, powerPreference:'high-performance', logarithmicDepthBuffer:true });
@@ -165,17 +165,22 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
 renderer.toneMapping       = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.75;
+renderer.toneMappingExposure = 1.45;
 renderer.outputColorSpace  = THREE.SRGBColorSpace;
 
 // ── Lighting ──────────────────────────────────────────
-scene.add(new THREE.AmbientLight(0x0a1525, 2.8));
-const sunLight = new THREE.PointLight(0xfff8e8, 4.5, 0, 1.2);
+// Strong ambient keeps dark-sides visible
+scene.add(new THREE.AmbientLight(0x334466, 7.0));
+// Hemisphere fills shadows with a warm/cool gradient
+scene.add(new THREE.HemisphereLight(0x4466bb, 0x223322, 2.5));
+// Primary sun point light
+const sunLight = new THREE.PointLight(0xfff5e0, 9.0, 0, 1.05);
 sunLight.castShadow = true;
 sunLight.shadow.mapSize.set(2048,2048);
-sunLight.shadow.camera.near=0.5; sunLight.shadow.camera.far=600; sunLight.shadow.bias=-0.001;
+sunLight.shadow.camera.near=0.5; sunLight.shadow.camera.far=800; sunLight.shadow.bias=-0.001;
 scene.add(sunLight);
-scene.add(new THREE.PointLight(0xff8822, 0.4, 0, 2));
+// Warm fill — scattered solar wind glow
+scene.add(new THREE.PointLight(0xff9933, 2.2, 0, 1.5));
 
 // ── Starfield ─────────────────────────────────────────
 (function(){
@@ -208,14 +213,16 @@ function buildCirclePath(r,color=0x223355,opacity=0.22){
 // ═══════════════════════════════════════════════════════
 
 const PLANET_DEFS=[
-  {name:'Mercury',texture:'mercury',radius:0.38,sma:9,  ecc:0.206,period:0.241, rotSpeed:0.003, tilt:0.03, navColor:'#aaaaaa',stats:{type:'Terrestrial Planet',distance:'57.9M km from Sun',diameter:'4,879 km',period:'88 Earth days',moons:'0'}},
-  {name:'Venus',  texture:'venus',  radius:0.95,sma:14.5,ecc:0.007,period:0.615, rotSpeed:-0.001,tilt:177.4,navColor:'#e8b84b',atmosphere:{color:0xffcc66,opacity:0.10},stats:{type:'Terrestrial Planet',distance:'108.2M km from Sun',diameter:'12,104 km',period:'224.7 Earth days',moons:'0'}},
-  {name:'Earth',  texture:'earth',  radius:1.0, sma:20, ecc:0.017,period:1.0,   rotSpeed:0.01,  tilt:23.5, navColor:'#3a8fff',atmosphere:{color:0x4499ff,opacity:0.11},stats:{type:'Terrestrial Planet',distance:'149.6M km from Sun',diameter:'12,742 km',period:'365.25 Earth days',moons:'1'}},
-  {name:'Mars',   texture:'mars',   radius:0.53,sma:28, ecc:0.093,period:1.88,  rotSpeed:0.009, tilt:25.2, navColor:'#c1440e',stats:{type:'Terrestrial Planet',distance:'227.9M km from Sun',diameter:'6,779 km',period:'687 Earth days',moons:'2'}},
-  {name:'Jupiter',texture:'jupiter',radius:3.5, sma:44, ecc:0.049,period:11.86, rotSpeed:0.04,  tilt:3.1,  navColor:'#d4a473',stats:{type:'Gas Giant',distance:'778.5M km from Sun',diameter:'139,820 km',period:'11.86 Earth years',moons:'95'}},
-  {name:'Saturn', texture:'saturn', radius:2.9, sma:62, ecc:0.057,period:29.46, rotSpeed:0.038, tilt:26.7, navColor:'#e4c98a',hasRings:true,stats:{type:'Gas Giant',distance:'1.43B km from Sun',diameter:'116,460 km',period:'29.46 Earth years',moons:'146'}},
-  {name:'Uranus', texture:'uranus', radius:2.0, sma:80, ecc:0.046,period:84.01, rotSpeed:-0.025,tilt:97.8, navColor:'#7de8e8',atmosphere:{color:0x55dddd,opacity:0.07},stats:{type:'Ice Giant',distance:'2.87B km from Sun',diameter:'50,724 km',period:'84 Earth years',moons:'28'}},
-  {name:'Neptune',texture:'neptune',radius:1.9, sma:97, ecc:0.009,period:164.8, rotSpeed:0.028, tilt:28.3, navColor:'#3f54ba',atmosphere:{color:0x3355cc,opacity:0.09},stats:{type:'Ice Giant',distance:'4.50B km from Sun',diameter:'49,244 km',period:'164.8 Earth years',moons:'16'}},
+  // Radii boosted for visual clarity. Inner planets 2.2×, gas giants 1.5×, ice giants 1.6×
+  // Orbits slightly compressed so outer planets remain comfortably in view
+  {name:'Mercury',texture:'mercury',radius:0.85, sma:9,  ecc:0.206,period:0.241, rotSpeed:0.003, tilt:0.03, navColor:'#aaaaaa',stats:{type:'Terrestrial Planet',distance:'57.9M km from Sun',diameter:'4,879 km',period:'88 Earth days',moons:'0'}},
+  {name:'Venus',  texture:'venus',  radius:2.0,  sma:14.5,ecc:0.007,period:0.615, rotSpeed:-0.001,tilt:177.4,navColor:'#e8b84b',atmosphere:{color:0xffcc66,opacity:0.18},stats:{type:'Terrestrial Planet',distance:'108.2M km from Sun',diameter:'12,104 km',period:'224.7 Earth days',moons:'0'}},
+  {name:'Earth',  texture:'earth',  radius:2.1,  sma:20, ecc:0.017,period:1.0,   rotSpeed:0.01,  tilt:23.5, navColor:'#3a8fff',atmosphere:{color:0x4499ff,opacity:0.20},stats:{type:'Terrestrial Planet',distance:'149.6M km from Sun',diameter:'12,742 km',period:'365.25 Earth days',moons:'1'}},
+  {name:'Mars',   texture:'mars',   radius:1.15, sma:28, ecc:0.093,period:1.88,  rotSpeed:0.009, tilt:25.2, navColor:'#c1440e',stats:{type:'Terrestrial Planet',distance:'227.9M km from Sun',diameter:'6,779 km',period:'687 Earth days',moons:'2'}},
+  {name:'Jupiter',texture:'jupiter',radius:5.2,  sma:44, ecc:0.049,period:11.86, rotSpeed:0.04,  tilt:3.1,  navColor:'#d4a473',stats:{type:'Gas Giant',distance:'778.5M km from Sun',diameter:'139,820 km',period:'11.86 Earth years',moons:'95'}},
+  {name:'Saturn', texture:'saturn', radius:4.4,  sma:62, ecc:0.057,period:29.46, rotSpeed:0.038, tilt:26.7, navColor:'#e4c98a',hasRings:true,stats:{type:'Gas Giant',distance:'1.43B km from Sun',diameter:'116,460 km',period:'29.46 Earth years',moons:'146'}},
+  {name:'Uranus', texture:'uranus', radius:3.2,  sma:80, ecc:0.046,period:84.01, rotSpeed:-0.025,tilt:97.8, navColor:'#7de8e8',atmosphere:{color:0x55dddd,opacity:0.14},stats:{type:'Ice Giant',distance:'2.87B km from Sun',diameter:'50,724 km',period:'84 Earth years',moons:'28'}},
+  {name:'Neptune',texture:'neptune',radius:3.0,  sma:97, ecc:0.009,period:164.8, rotSpeed:0.028, tilt:28.3, navColor:'#3f54ba',atmosphere:{color:0x3355cc,opacity:0.16},stats:{type:'Ice Giant',distance:'4.50B km from Sun',diameter:'49,244 km',period:'164.8 Earth years',moons:'16'}},
 ];
 
 // ═══════════════════════════════════════════════════════
@@ -225,68 +232,64 @@ const PLANET_DEFS=[
 const MOON_DEFS={
   Earth:{
     named:[
-      {name:'Moon',      radius:0.27,dist:2.6, period:0.0748, incl:5.1,  tex:'moon',           color:0xddddcc},
+      {name:'Moon',      radius:0.55,dist:4.8, period:0.0748, incl:5.1,  tex:'moon',           color:0xddddcc},
     ],
     small:[]
   },
   Mars:{
     named:[
-      {name:'Phobos',    radius:0.09,dist:1.55,period:0.00876,incl:1.1,  tex:'moon_phobos',    color:0x887766},
-      {name:'Deimos',    radius:0.07,dist:2.3, period:0.0163, incl:1.8,  tex:'moon_phobos',    color:0x998877},
+      {name:'Phobos',    radius:0.18,dist:2.8, period:0.00876,incl:1.1,  tex:'moon_phobos',    color:0x887766},
+      {name:'Deimos',    radius:0.14,dist:4.2, period:0.0163, incl:1.8,  tex:'moon_phobos',    color:0x998877},
     ],
     small:[]
   },
   Jupiter:{
     named:[
-      {name:'Io',        radius:0.29,dist:5.8, period:0.00484,incl:0.04, tex:'moon_io',        color:0xffcc33},
-      {name:'Europa',    radius:0.24,dist:7.8, period:0.00972,incl:0.47, tex:'moon_europa',    color:0xddeeff},
-      {name:'Ganymede',  radius:0.38,dist:10.5,period:0.0196, incl:0.18, tex:'moon_ganymede',  color:0x99887a},
-      {name:'Callisto',  radius:0.34,dist:14.0,period:0.0457, incl:0.19, tex:'moon_callisto',  color:0x665544},
-      {name:'Amalthea',  radius:0.07,dist:4.2, period:0.00204,incl:0.4,  tex:'moon_grey',      color:0x884422},
-      {name:'Thebe',     radius:0.06,dist:4.8, period:0.00257,incl:1.1,  tex:'moon_grey',      color:0x775533},
+      {name:'Io',        radius:0.55,dist:9.0, period:0.00484,incl:0.04, tex:'moon_io',        color:0xffcc33},
+      {name:'Europa',    radius:0.46,dist:12.0,period:0.00972,incl:0.47, tex:'moon_europa',    color:0xddeeff},
+      {name:'Ganymede',  radius:0.72,dist:16.0,period:0.0196, incl:0.18, tex:'moon_ganymede',  color:0x99887a},
+      {name:'Callisto',  radius:0.65,dist:21.5,period:0.0457, incl:0.19, tex:'moon_callisto',  color:0x665544},
+      {name:'Amalthea',  radius:0.14,dist:6.8, period:0.00204,incl:0.4,  tex:'moon_grey',      color:0x884422},
+      {name:'Thebe',     radius:0.12,dist:7.8, period:0.00257,incl:1.1,  tex:'moon_grey',      color:0x775533},
     ],
-    // 89 small moons represent the remaining irregular/outer group moons
-    small:{count:89, distRange:[16,55], periodRange:[0.06,3.0]}
+    small:{count:89, distRange:[24,70], periodRange:[0.06,3.0]}
   },
   Saturn:{
     named:[
-      {name:'Mimas',     radius:0.09,dist:4.5, period:0.00626,incl:1.6,  tex:'moon_icy',       color:0xe0ddd5},
-      {name:'Enceladus', radius:0.11,dist:5.5, period:0.00877,incl:0.01, tex:'moon_enceladus', color:0xf5f5ff},
-      {name:'Tethys',    radius:0.16,dist:6.6, period:0.0129, incl:1.1,  tex:'moon_icy',       color:0xd8d5cc},
-      {name:'Dione',     radius:0.18,dist:7.8, period:0.0183, incl:0.02, tex:'moon_icy',       color:0xccc8be},
-      {name:'Rhea',      radius:0.22,dist:9.5, period:0.0292, incl:0.35, tex:'moon_grey',      color:0xc5c2b8},
-      {name:'Titan',     radius:0.38,dist:13.5,period:0.0694, incl:0.35, tex:'moon_titan',     color:0xff9944},
-      {name:'Hyperion',  radius:0.10,dist:17.0,period:0.115,  incl:0.6,  tex:'moon_grey',      color:0xaa9988},
-      {name:'Iapetus',   radius:0.22,dist:22.0,period:0.267,  incl:15.5, tex:'moon_grey',      color:0x887755},
-      {name:'Phoebe',    radius:0.10,dist:30.0,period:1.51,   incl:174,  tex:'moon_grey',      color:0x665544},// retrograde
+      {name:'Mimas',     radius:0.18,dist:7.5, period:0.00626,incl:1.6,  tex:'moon_icy',       color:0xe0ddd5},
+      {name:'Enceladus', radius:0.22,dist:9.0, period:0.00877,incl:0.01, tex:'moon_enceladus', color:0xf5f5ff},
+      {name:'Tethys',    radius:0.32,dist:10.8,period:0.0129, incl:1.1,  tex:'moon_icy',       color:0xd8d5cc},
+      {name:'Dione',     radius:0.36,dist:12.8,period:0.0183, incl:0.02, tex:'moon_icy',       color:0xccc8be},
+      {name:'Rhea',      radius:0.44,dist:15.5,period:0.0292, incl:0.35, tex:'moon_grey',      color:0xc5c2b8},
+      {name:'Titan',     radius:0.72,dist:22.0,period:0.0694, incl:0.35, tex:'moon_titan',     color:0xff9944},
+      {name:'Hyperion',  radius:0.20,dist:27.5,period:0.115,  incl:0.6,  tex:'moon_grey',      color:0xaa9988},
+      {name:'Iapetus',   radius:0.44,dist:36.0,period:0.267,  incl:15.5, tex:'moon_grey',      color:0x887755},
+      {name:'Phoebe',    radius:0.20,dist:50.0,period:1.51,   incl:174,  tex:'moon_grey',      color:0x665544},
     ],
-    // 137 remaining small moons
-    small:{count:137, distRange:[24,80], periodRange:[0.3,8.0]}
+    small:{count:137, distRange:[38,120], periodRange:[0.3,8.0]}
   },
   Uranus:{
     named:[
-      {name:'Miranda',   radius:0.08,dist:3.8, period:0.00946,incl:4.2,  tex:'moon_icy',       color:0xccbbaa},
-      {name:'Ariel',     radius:0.14,dist:5.0, period:0.0168, incl:0.26, tex:'moon_icy',       color:0xd5c8b8},
-      {name:'Umbriel',   radius:0.14,dist:6.5, period:0.0248, incl:0.13, tex:'moon_grey',      color:0x887766},
-      {name:'Titania',   radius:0.19,dist:8.5, period:0.0472, incl:0.08, tex:'moon_grey',      color:0xb8a898},
-      {name:'Oberon',    radius:0.19,dist:11.0,period:0.0766, incl:0.07, tex:'moon_grey',      color:0x998877},
+      {name:'Miranda',   radius:0.16,dist:5.5, period:0.00946,incl:4.2,  tex:'moon_icy',       color:0xccbbaa},
+      {name:'Ariel',     radius:0.28,dist:7.5, period:0.0168, incl:0.26, tex:'moon_icy',       color:0xd5c8b8},
+      {name:'Umbriel',   radius:0.28,dist:9.5, period:0.0248, incl:0.13, tex:'moon_grey',      color:0x887766},
+      {name:'Titania',   radius:0.38,dist:13.0,period:0.0472, incl:0.08, tex:'moon_grey',      color:0xb8a898},
+      {name:'Oberon',    radius:0.38,dist:17.0,period:0.0766, incl:0.07, tex:'moon_grey',      color:0x998877},
     ],
-    // 23 remaining small moons
-    small:{count:23, distRange:[12,30], periodRange:[0.09,1.2]}
+    small:{count:23, distRange:[19,48], periodRange:[0.09,1.2]}
   },
   Neptune:{
     named:[
-      {name:'Naiad',     radius:0.05,dist:2.8, period:0.00208,incl:4.7,  tex:'moon_grey',      color:0x778899},
-      {name:'Thalassa',  radius:0.05,dist:3.1, period:0.00241,incl:0.2,  tex:'moon_grey',      color:0x667788},
-      {name:'Despina',   radius:0.06,dist:3.5, period:0.00289,incl:0.1,  tex:'moon_grey',      color:0x778899},
-      {name:'Galatea',   radius:0.07,dist:4.0, period:0.00344,incl:0.1,  tex:'moon_grey',      color:0x667788},
-      {name:'Larissa',   radius:0.08,dist:4.6, period:0.00441,incl:0.2,  tex:'moon_grey',      color:0x778899},
-      {name:'Proteus',   radius:0.10,dist:5.5, period:0.00456,incl:0.5,  tex:'moon_grey',      color:0x666655},
-      {name:'Triton',    radius:0.27,dist:7.5, period:0.0164, incl:157,  tex:'moon_triton',    color:0xffeecc},// retrograde
-      {name:'Nereid',    radius:0.08,dist:16.0,period:1.1,    incl:7.2,  tex:'moon_grey',      color:0xaaaaaa},
+      {name:'Naiad',     radius:0.10,dist:4.5, period:0.00208,incl:4.7,  tex:'moon_grey',      color:0x778899},
+      {name:'Thalassa',  radius:0.10,dist:5.0, period:0.00241,incl:0.2,  tex:'moon_grey',      color:0x667788},
+      {name:'Despina',   radius:0.12,dist:5.7, period:0.00289,incl:0.1,  tex:'moon_grey',      color:0x778899},
+      {name:'Galatea',   radius:0.14,dist:6.6, period:0.00344,incl:0.1,  tex:'moon_grey',      color:0x667788},
+      {name:'Larissa',   radius:0.16,dist:7.5, period:0.00441,incl:0.2,  tex:'moon_grey',      color:0x778899},
+      {name:'Proteus',   radius:0.20,dist:9.0, period:0.00456,incl:0.5,  tex:'moon_grey',      color:0x666655},
+      {name:'Triton',    radius:0.52,dist:12.5,period:0.0164, incl:157,  tex:'moon_triton',    color:0xffeecc},
+      {name:'Nereid',    radius:0.16,dist:26.0,period:1.1,    incl:7.2,  tex:'moon_grey',      color:0xaaaaaa},
     ],
-    // 8 remaining small moons
-    small:{count:8, distRange:[18,55], periodRange:[1.2,10.0]}
+    small:{count:8, distRange:[28,80], periodRange:[1.2,10.0]}
   }
 };
 
@@ -306,15 +309,31 @@ const planets=[], orbitLines=[], planetMeshes=[];
 let earthPlanet=null;
 
 PLANET_DEFS.forEach((def,idx)=>{
+  // Emissive tint per planet so they glow faintly even on dark sides
+  const emissiveMap={Mercury:0x221108,Venus:0x332211,Earth:0x081828,Mars:0x2a0800,Jupiter:0x1a0e06,Saturn:0x1a1408,Uranus:0x041818,Neptune:0x030a22};
   const mesh=new THREE.Mesh(
     new THREE.SphereGeometry(def.radius,64,32),
-    new THREE.MeshStandardMaterial({map:getTex(def.texture),roughness:def.name==='Mercury'?0.95:def.name==='Earth'?0.65:0.78,metalness:0})
+    new THREE.MeshStandardMaterial({
+      map:getTex(def.texture),
+      roughness:def.name==='Mercury'?0.80:def.name==='Earth'?0.50:0.62,
+      metalness:0.02,
+      emissive:new THREE.Color(emissiveMap[def.name]||0x000000),
+      emissiveIntensity:1.0,
+    })
   );
   mesh.castShadow=mesh.receiveShadow=true;
   mesh.rotation.z=THREE.MathUtils.degToRad(def.tilt);
   mesh.userData.planet=def; mesh.userData.idx=idx;
 
-  if(def.atmosphere) mesh.add(new THREE.Mesh(new THREE.SphereGeometry(def.radius*1.022,32,32),new THREE.MeshBasicMaterial({color:def.atmosphere.color,transparent:true,opacity:def.atmosphere.opacity,side:THREE.FrontSide,depthWrite:false,blending:THREE.AdditiveBlending})));
+  if(def.atmosphere) mesh.add(new THREE.Mesh(new THREE.SphereGeometry(def.radius*1.032,32,32),new THREE.MeshBasicMaterial({color:def.atmosphere.color,transparent:true,opacity:def.atmosphere.opacity,side:THREE.FrontSide,depthWrite:false,blending:THREE.AdditiveBlending})));
+
+  // Rim glow — additive sphere slightly larger than planet, back-facing
+  const rimColors={Mercury:0x554433,Venus:0xffcc44,Earth:0x2266ff,Mars:0xff4411,Jupiter:0xddaa66,Saturn:0xeedd88,Uranus:0x44ddcc,Neptune:0x2244ff};
+  const rimMesh=new THREE.Mesh(
+    new THREE.SphereGeometry(def.radius*1.08,32,32),
+    new THREE.MeshBasicMaterial({color:rimColors[def.name]||0x446688,transparent:true,opacity:0.22,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false})
+  );
+  mesh.add(rimMesh);
 
   if(def.hasRings){
     const rIn=def.radius*1.25,rOut=def.radius*2.55;
@@ -366,7 +385,7 @@ planets.forEach(planet=>{
 
     const mesh=new THREE.Mesh(
       getMoonGeo(mDef.radius,18),
-      new THREE.MeshStandardMaterial({map:getTex(mDef.tex),roughness:0.90,metalness:0})
+      new THREE.MeshStandardMaterial({map:getTex(mDef.tex),roughness:0.85,metalness:0,emissive:new THREE.Color(0x080808),emissiveIntensity:1.0})
     );
     mesh.castShadow=mesh.receiveShadow=true;
     mesh.name=mDef.name;
