@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solar System — 3D Simulation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <!-- Hover tooltip -->
+  <div id="tooltip"></div>
+
+  <!-- Planet info panel -->
+  <div id="panel" class="hidden">
+    <div class="panel-header">
+      <span id="panel-type"></span>
+      <button id="panel-close">✕</button>
+    </div>
+    <div id="panel-name"></div>
+    <div class="panel-divider"></div>
+    <div id="panel-stats"></div>
+  </div>
+
+  <!-- Main HUD -->
+  <div id="hud">
+    <div class="hud-logo">
+      <div class="hud-dot"></div>
+      <span>SOLAR SYSTEM</span>
+    </div>
+
+    <div class="hud-sep"></div>
+
+    <div class="hud-row">
+      <button id="btn-pause" class="hud-btn">
+        <span id="pause-icon">⏸</span>
+        <span id="pause-text">PAUSE</span>
+      </button>
+    </div>
+
+    <div class="hud-row">
+      <div class="hud-label">SPEED</div>
+      <div class="slider-wrap">
+        <input type="range" id="speed-slider" min="0.1" max="10" step="0.1" value="1">
+      </div>
+      <div id="speed-display" class="hud-value">1.0×</div>
+    </div>
+
+    <div class="hud-row toggle-row">
+      <label class="toggle-label" for="orbit-toggle">
+        <span>ORBITS</span>
+        <div class="toggle-switch">
+          <input type="checkbox" id="orbit-toggle" checked>
+          <span class="toggle-slider"></span>
+        </div>
+      </label>
+    </div>
+
+    <div class="hud-row toggle-row">
+      <label class="toggle-label" for="labels-toggle">
+        <span>LABELS</span>
+        <div class="toggle-switch">
+          <input type="checkbox" id="labels-toggle" checked>
+          <span class="toggle-slider"></span>
+        </div>
+      </label>
+    </div>
+
+    <div class="hud-sep"></div>
+
+    <div class="hud-hint">CLICK PLANET TO FOCUS</div>
+    <div class="hud-hint">SCROLL TO ZOOM · DRAG TO ORBIT</div>
+  </div>
+
+  <!-- Planet Nav -->
+  <div id="planet-nav">
+    <div class="nav-title">PLANETS</div>
+    <div id="nav-list"></div>
+  </div>
+
+  <!-- Loading screen -->
+  <div id="loading">
+    <div class="ld-inner">
+      <div class="ld-orbit">
+        <div class="ld-ring ld-ring-1"></div>
+        <div class="ld-ring ld-ring-2"></div>
+        <div class="ld-ring ld-ring-3"></div>
+        <div class="ld-sun"></div>
+      </div>
+      <div class="ld-title">SOLAR SYSTEM</div>
+      <div class="ld-sub">GENERATING UNIVERSE</div>
+      <div class="ld-bar-wrap">
+        <div class="ld-bar"><div id="ld-fill"></div></div>
+        <span id="ld-pct">0%</span>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
